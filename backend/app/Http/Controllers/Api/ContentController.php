@@ -34,6 +34,7 @@ class ContentController extends Controller
 
         $validatedData['user_id'] = auth()->user()->id;
         $validatedData['slug'] = Str::slug($validatedData['title']);
+        $validatedData['published_at'] = now();
 
         if ($request->hasFile('featured_image')) {
             $validatedData['featured_image'] = $request->file('featured_image')->store('featured_images', 'public');

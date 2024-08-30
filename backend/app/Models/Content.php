@@ -62,6 +62,8 @@ class Content extends Model
     public function scopeLatestPublished(Builder $query, $limit = 5)
     {
         return $query->where('status', 'published')
+            ->where('published_at', '<=', now())
+            ->orderBy('published_at', 'desc')
             ->limit($limit);
     }
 }

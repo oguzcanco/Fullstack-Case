@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -9,6 +9,9 @@ import dynamic from 'next/dynamic';
 import Select from 'react-select';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { useDropzone } from 'react-dropzone';
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const createSlug = (text) => {
     const turkishChars = { 'ı': 'i', 'ğ': 'g', 'ü': 'u', 'ş': 's', 'ö': 'o', 'ç': 'c', 'İ': 'I', 'Ğ': 'G', 'Ü': 'U', 'Ş': 'S', 'Ö': 'O', 'Ç': 'C' };
@@ -34,6 +37,8 @@ export default function AddContent() {
     });
     const [categories, setCategories] = useState([]);
     const [featuredImage, setFeaturedImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 16 / 9 });
     const [galleryImages, setGalleryImages] = useState([]);
     const [authors, setAuthors] = useState([]);
     const router = useRouter();
@@ -85,9 +90,21 @@ export default function AddContent() {
         setContent(prev => ({ ...prev, categories: selectedOptions.map(option => option.value) }));
     };
 
-    const handleFeaturedImageChange = (e) => {
-        setFeaturedImage(e.target.files[0]);
-    };
+    const onDrop = useCallback((acceptedFiles) => {
+        const file = acceptedFiles[0];
+        setFeaturedImage(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setPreviewImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+    }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: {'image/*': []},
+        multiple: false
+    });
 
     const handleGalleryImagesChange = (e) => {
         setGalleryImages([...e.target.files]);
@@ -154,7 +171,7 @@ export default function AddContent() {
                             onChange={(selectedOption) => handleChange({ target: { name: 'user_id', value: selectedOption.value } })}
                             className="basic-single"
                             classNamePrefix="select"
-                            getOptionLabel={(option) => `${option.label} ${option.role ? `(${option.role})` : ''}`}
+                            getOptionLabel={(option) => `${option.label} ${option.role ? `(${option.role.name})` : ''}`}
                         />
                     </div>
                     <div>
@@ -192,7 +209,20 @@ export default function AddContent() {
                     </div>
                     <div>
                         <label htmlFor="featured_img" className="block text-sm font-medium text-gray-700 mb-1">Öne Çıkan Görsel</label>
-                        <input type="file" id="featured_img" name="featured_img" accept="image/*" onChange={handleFeaturedImageChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        <div 
+                            {...getRootProps()} 
+                            className="dropzone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500 transition-colors duration-300"
+                        >
+                            <input {...getInputProps()} />
+                            {isDragActive ? (
+                                <p className="text-indigo-500">Resmi buraya bırakın...</p>
+                            ) : (
+                                <p>Resmi sürükleyip bırakın veya tıklayarak seçin</p>
+                            )}
+                            {previewImage && (
+                                <img src={previewImage} alt="Preview" className="mt-4 mx-auto max-w-full h-auto" style={{maxHeight: '300px'}} />
+                            )}
+                        </div>
                     </div>
                     <div>
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">Durum</label>

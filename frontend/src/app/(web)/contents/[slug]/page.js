@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { publicApi } from '@/lib/publicApi';
+import { getImageUrl } from '@/utils/imageHelper'; // Bu satırı ekleyin
 import Image from 'next/image';
 import styles from './styles.module.css';
 
@@ -48,7 +49,7 @@ export default function ContentDetail({ params }) {
                 <div className="mb-8">
                     <Image
                         className={`w-full rounded-lg shadow-lg object-cover ${styles.contentImage}`}
-                        src={content.featured_image || "https://via.placeholder.com/800x400"}
+                        src={getImageUrl(content.featured_image)}
                         alt={content.title}
                         width={800}
                         height={400}

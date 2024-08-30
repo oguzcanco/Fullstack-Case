@@ -1,5 +1,5 @@
 export function getImageUrl(imagePath) {
-    if (!imagePath) return "https://via.placeholder.com/300";
+    if (!imagePath) return "https://via.placeholder.com/333";
     
     if (imagePath.startsWith('http')) {
         return imagePath;
