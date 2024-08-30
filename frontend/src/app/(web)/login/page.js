@@ -3,22 +3,38 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { useAuthRedirect } from '@/lib/authRedirect';
 
 export default function Login() {
+    useAuthRedirect(); // Bu satırı ekleyin
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
 
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         try {
             const response = await api.post('/auth/login', { email, password });
             if (response.data.user && response.data.access_token) {
                 localStorage.setItem('token', response.data.access_token);
+                localStorage.setItem('userRole', response.data.user.role); // Kullanıcı rolünü kaydet
                 document.cookie = `token=${response.data.access_token}; path=/; max-age=86400; SameSite=Strict; Secure`; // 1 gün için, güvenli
-                router.push('/panel');
+
+                // Özel event'i tetikle
+                window.dispatchEvent(new Event('loginCompleted'));
+
+                if (
+                    response.data.user.role_id === 1 ||
+                    response.data.user.role_id === 2 ||
+                    response.data.user.role_id === 3
+                ) {
+                    router.push('/panel');
+                } else {
+                    router.push('/');
+                }
             } else {
                 setError('Geçersiz yanıt alındı. Lütfen tekrar deneyin.');
             }
@@ -40,7 +56,7 @@ export default function Login() {
                         Hesabınıza giriş yapın
                     </h2>
                 </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                <form className="mt-8 space-y-6" onSubmit={handleLogin}>
                     <input type="hidden" name="remember" value="true" />
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>

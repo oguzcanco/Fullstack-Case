@@ -8,17 +8,42 @@ import { useRouter } from 'next/navigation';
 export default function ClientWebLayout({ children }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userRole, setUserRole] = useState(null);
     const logout = useLogout();
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        setIsLoggedIn(!!token);
+        const checkLoginStatus = () => {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('userRole');
+            setIsLoggedIn(!!token);
+            setUserRole(role);
+        };
+
+        checkLoginStatus();
+
+        // Özel event dinleyicisi
+        const handleLoginEvent = () => {
+            checkLoginStatus();
+        };
+
+        window.addEventListener('storage', checkLoginStatus);
+        window.addEventListener('loginCompleted', handleLoginEvent);
+
+        return () => {
+            window.removeEventListener('storage', checkLoginStatus);
+            window.removeEventListener('loginCompleted', handleLoginEvent);
+        };
     }, []);
 
     const handleAuthAction = () => {
         if (isLoggedIn) {
             logout();
+            setIsLoggedIn(false);
+            setUserRole(null);
+            localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            router.push('/');
         } else {
             router.push('/login');
         }
@@ -61,6 +86,11 @@ export default function ClientWebLayout({ children }) {
                             {!isLoggedIn && (
                                 <Link href="/register" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                                     Kayıt Ol
+                                </Link>
+                            )}
+                            {isLoggedIn && userRole === 'admin' && (
+                                <Link href="/admin/panel" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                    Admin Paneli
                                 </Link>
                             )}
                         </div>

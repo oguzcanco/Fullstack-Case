@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { useAuthRedirect } from '@/lib/authRedirect';
 import Link from 'next/link';
 
 export default function Register() {
+    useAuthRedirect(); // Bu satırı ekleyin
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
