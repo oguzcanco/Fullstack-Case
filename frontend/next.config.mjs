@@ -2,8 +2,8 @@
 const nextConfig = {
     reactStrictMode: false,
     images: {
-        domains: ['via.placeholder.com', 'localhost', '127.0.0.1'],
+        domains: ['via.placeholder.com', 'localhost', '127.0.0.1', 'laravel'],
     },
 }
 
-export default nextConfig
+export default nextConfig;

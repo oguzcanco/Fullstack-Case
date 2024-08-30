@@ -4,6 +4,5 @@ export function getImageUrl(imagePath) {
     if (imagePath.startsWith('http')) {
         return imagePath;
     }
-    console.log(`${process.env.NEXT_PUBLIC_API_URL}/images/${imagePath}`);
-    return `${process.env.NEXT_PUBLIC_API_URL}/images/${imagePath}`;
+    return `http://laravel:8001/api/images/${imagePath}`;
 }

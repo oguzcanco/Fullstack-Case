@@ -9,7 +9,7 @@ export async function middleware(request) {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-token`, {
+            const response = await fetch(`${process.env.NEXT_MIDDLEWARE_API_URL}/auth/verify-token`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

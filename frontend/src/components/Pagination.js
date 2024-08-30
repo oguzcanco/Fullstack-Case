@@ -11,7 +11,7 @@ export default function Pagination({ currentPage, lastPage, onPageChange, links 
                                         ? 'bg-purple-600 text-white'
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
-                                onClick={() => onPageChange(link.label)}
+                                onClick={() => onPageChange(link.url.split('=')[1])}
                                 dangerouslySetInnerHTML={{ __html: link.label }}
                             />
                         ) : (
