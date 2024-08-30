@@ -56,40 +56,43 @@ class ContentController extends Controller
         return response()->json($content);
     }
 
-    public function update(Request $request, Content $content)
+    public function update(Request $request, ContentGallery $contentGallery)
     {
-        Gate::authorize('create', $content);
-
-        $validatedData = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'content' => 'sometimes|required|string',
-            'summary' => 'nullable|string',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_ids' => 'sometimes|required|array',
-            'category_ids.*' => 'exists:categories,id',
-            'status' => 'sometimes|required|in:draft,published',
-            'meta_data' => 'nullable|json',
+        $request->validate([
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_order' => 'sometimes|integer|min:1'
+        ]);
+    
+        if ($request->hasFile('image')) {
+            // Eski resmi sil
+            Storage::disk('public')->delete($contentGallery->image_path);
+            $contentGallery->image_path = $request->file('image')->store('content_gallery', 'public');
+        }
+    
+        if ($request->has('image_order')) {
+            $contentGallery->image_order = $request->image_order;
+        }
+    
+        $contentGallery->save();
+    
+        return response()->json($contentGallery);
+    }
+    public function updateMultiple(Request $request, Content $content)
+    {
+        $request->validate([
+            'gallery' => 'required|array',
+            'gallery.*.id' => 'required|exists:content_galleries,id',
+            'gallery.*.image_order' => 'required|integer|min:1'
         ]);
 
-        if (isset($validatedData['title'])) {
-            $validatedData['slug'] = Str::slug($validatedData['title']);
+        foreach ($request->gallery as $item) {
+            $contentGallery = $content->gallery()->find($item['id']);
+            if ($contentGallery) {
+                $contentGallery->update(['image_order' => $item['image_order']]);
+            }
         }
 
-        if ($request->hasFile('featured_image')) {
-            $validatedData['featured_image'] = $request->file('featured_image')->store('featured_images', 'public');
-        }
-
-        $content->update($validatedData);
-
-        if (isset($validatedData['category_ids'])) {
-            $content->categories()->sync($validatedData['category_ids']);
-        }
-
-        if (isset($validatedData['status']) && $validatedData['status'] === 'published') {
-            $content->publish();
-        }
-
-        return response()->json($content->load('categories'));
+        return response()->json($content->gallery()->orderBy('image_order')->get());
     }
 
     public function destroy(Content $content)
