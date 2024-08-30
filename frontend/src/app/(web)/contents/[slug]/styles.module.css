@@ -1,0 +1,5 @@
+.contentImage {
+    /* Buraya istediğiniz stilleri ekleyin */
+    max-height: 500px;
+    object-fit: cover;
+}
