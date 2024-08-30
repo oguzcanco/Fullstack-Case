@@ -1,0 +1,51 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: blogdb
+      MYSQL_USER: laraveluser
+      MYSQL_PASSWORD: laravelpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: laravel
+    restart: unless-stopped
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: blogdb
+      DB_USERNAME: laraveluser
+      DB_PASSWORD: laravelpassword
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mysql
+
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: nextjs
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    depends_on:
+      - laravel
+
+volumes:
+  mysql_data:

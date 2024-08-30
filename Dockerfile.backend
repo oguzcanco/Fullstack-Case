@@ -1,0 +1,36 @@
+# Use an official PHP image with Apache
+FROM php:8.2-apache
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    curl
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql gd
+
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy existing application directory contents
+COPY ./backend /var/www/html
+
+# Install dependencies
+RUN composer install
+
+# Expose port 8001 and start the Apache server
+EXPOSE 8001
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8001"]
