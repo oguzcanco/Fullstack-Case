@@ -30,7 +30,7 @@ COPY ./backend /var/www/html
 
 # Install dependencies
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --working-dir /var/www/html
+RUN composer install --working-dir /var/www/html
 
 # Expose port 8001 and start the Apache server
 EXPOSE 8001
