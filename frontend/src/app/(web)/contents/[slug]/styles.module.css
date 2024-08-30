@@ -3,3 +3,10 @@
     max-height: 500px;
     object-fit: cover;
 }
+.sliderArrows :global(.slick-prev),
+.sliderArrows :global(.slick-next) {
+    border-radius: 2.5px;
+    background: black !important;
+    width: 30px;
+    height: 30px;
+}
