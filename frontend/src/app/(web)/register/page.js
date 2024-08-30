@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuthRedirect } from '@/lib/authRedirect';
 import Link from 'next/link';
+import { FaSpinner } from 'react-icons/fa';
 
 export default function Register() {
     useAuthRedirect(); // Bu satırı ekleyin
@@ -15,10 +16,13 @@ export default function Register() {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
         try {
             const response = await api.post('/auth/register', { 
                 name, 
@@ -28,7 +32,12 @@ export default function Register() {
             });
             if (response.data && response.data.access_token) {
                 localStorage.setItem('token', response.data.access_token);
-                router.push('/panel');
+                localStorage.setItem('userRole', response.data.user.role); // Kullanıcı rolünü kaydet
+                
+                // Özel event'i tetikle
+                window.dispatchEvent(new Event('loginCompleted'));
+                
+                router.push('/');
             } else {
                 setError('Geçersiz yanıt alındı. Lütfen tekrar deneyin.');
             }
@@ -39,6 +48,8 @@ export default function Register() {
             } else {
                 setError('Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.');
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -113,9 +124,13 @@ export default function Register() {
                     <div>
                         <button
                             type="submit"
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            disabled={isLoading}
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                         >
-                            Kayıt Ol
+                            {isLoading ? (
+                                <FaSpinner className="animate-spin mr-2" />
+                            ) : null}
+                            {isLoading ? 'Kayıt Yapılıyor...' : 'Kayıt Ol'}
                         </button>
                     </div>
                 </form>

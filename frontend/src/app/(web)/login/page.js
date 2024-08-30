@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuthRedirect } from '@/lib/authRedirect';
+import { FaSpinner } from 'react-icons/fa';
 
 export default function Login() {
     useAuthRedirect(); // Bu satırı ekleyin
@@ -12,10 +13,12 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
-
+    const [isLoading, setIsLoading] = useState(false);
+    
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
         try {
             const response = await api.post('/auth/login', { email, password });
             if (response.data.user && response.data.access_token) {
@@ -45,6 +48,8 @@ export default function Login() {
             } else {
                 setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -92,9 +97,13 @@ export default function Login() {
                     <div>
                         <button
                             type="submit"
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            disabled={isLoading}
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                         >
-                            Giriş Yap
+                            {isLoading ? (
+                                <FaSpinner className="animate-spin mr-2" />
+                            ) : null}
+                            {isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
                         </button>
                     </div>
                 </form>
