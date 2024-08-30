@@ -91,7 +91,7 @@ export default function PanelContents() {
                                         <small>{content.excerpt || 'İçerik özeti bulunmuyor.'}</small>
                                     </div>
                                     <div className="space-x-2">
-                                        <Link href={`/panel/contents/edit/${content.id}`} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
+                                        <Link href={`/panel/contents/edit/${content.id}`} className="hidden bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
                                             Düzenle
                                         </Link>
                                         <button onClick={() => handleDelete(content.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
