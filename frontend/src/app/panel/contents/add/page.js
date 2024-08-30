@@ -5,12 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { toast } from 'react-toastify';
-import dynamic from 'next/dynamic';
 import Select from 'react-select';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { useDropzone } from 'react-dropzone';
-import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
 const createSlug = (text) => {
@@ -106,8 +104,18 @@ export default function AddContent() {
         multiple: false
     });
 
-    const handleGalleryImagesChange = (e) => {
-        setGalleryImages([...e.target.files]);
+    const onGalleryDrop = useCallback((acceptedFiles) => {
+        setGalleryImages(acceptedFiles);
+    }, []);
+
+    const { getRootProps: getGalleryRootProps, getInputProps: getGalleryInputProps, isDragActive: isGalleryDragActive } = useDropzone({
+        onDrop: onGalleryDrop,
+        accept: {'image/*': []},
+        multiple: true
+    });
+
+    const removeGalleryImage = (index) => {
+        setGalleryImages(prevImages => prevImages.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -134,19 +142,41 @@ export default function AddContent() {
                 formData.append(`gallery[${index}]`, image);
             });
 
-            await api.post('/contents', formData, {
+            const response = await api.post('/contents', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
             toast.success('Makale başarıyla eklendi');
             router.push('/panel/contents');
+
+            if (response.data && response.data.id) {
+                await uploadGalleryImages(response.data.id);
+            }
         } catch (error) {
             console.error('Makale eklenirken hata oluştu:', error);
             if (error.response && error.response.data && error.response.data.message) {
                 toast.error(`Hata: ${error.response.data.message}`);
             } else {
                 toast.error('Makale eklenirken bir hata oluştu.');
+            }
+        }
+    };
+
+    const uploadGalleryImages = async (contentId) => {
+        for (let i = 0; i < galleryImages.length; i++) {
+            const formData = new FormData();
+            formData.append('image', galleryImages[i]);
+            formData.append('image_order', i + 1);
+
+            try {
+                await api.post(`/contents/${contentId}/gallery`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            } catch (error) {
+                console.error('Galeri resmi yükleme hatası:', error);
             }
         }
     };
@@ -247,7 +277,36 @@ export default function AddContent() {
                     </div>
                     <div>
                         <label htmlFor="gallery" className="block text-sm font-medium text-gray-700 mb-1">Galeri</label>
-                        <input type="file" id="gallery" name="gallery" accept="image/*" multiple onChange={handleGalleryImagesChange} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        <div {...getGalleryRootProps()} className="dropzone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500 transition-colors duration-300">
+                            <input {...getGalleryInputProps()} />
+                            {isGalleryDragActive ? (
+                                <p className="text-indigo-500">Resimleri buraya bırakın...</p>
+                            ) : (
+                                <p>Resimleri sürükleyip bırakın veya tıklayarak seçin</p>
+                            )}
+                        </div>
+                        {galleryImages.length > 0 && (
+                            <div className="mt-4 grid grid-cols-3 gap-4">
+                                {galleryImages.map((file, index) => (
+                                    <div key={index} className="relative">
+                                        <img 
+                                            src={URL.createObjectURL(file)} 
+                                            alt={`Gallery preview ${index + 1}`} 
+                                            className="w-full h-32 object-cover rounded-lg"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeGalleryImage(index)}
+                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 m-1 hover:bg-red-600 focus:outline-none"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className="flex items-center space-x-4">
                         <button type="submit" className="bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition">Kaydet</button>

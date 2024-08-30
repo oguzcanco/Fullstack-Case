@@ -5,15 +5,21 @@ import { publicApi } from '@/lib/publicApi';
 import { getImageUrl } from '@/utils/imageHelper'; // Bu satırı ekleyin
 import Image from 'next/image';
 import styles from './styles.module.css';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 
 export default function ContentDetail({ params }) {
     const [content, setContent] = useState(null);
+    const [galleryImages, setGalleryImages] = useState([]);
 
     useEffect(() => {
         const fetchContent = async () => {
             try {
                 const response = await publicApi('get', `/contents/${params.slug}`);
                 setContent(response.data);
+                setGalleryImages(response.data.gallery || []);
             } catch (error) {
                 console.error('İçerik yüklenirken hata oluştu:', error);
             }
@@ -25,6 +31,16 @@ export default function ContentDetail({ params }) {
     if (!content) {
         return <div>Yükleniyor...</div>;
     }
+
+    const sliderSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+    };
 
     return (
         <div className="desktop-container">
@@ -60,6 +76,26 @@ export default function ContentDetail({ params }) {
                     <p className="font-bold text-xl">{content.summary}</p>
                     <div dangerouslySetInnerHTML={{ __html: content.content }} />
                 </div>
+
+                {/* Slider ekleniyor */}
+                {galleryImages.length > 0 && (
+                    <div className="mt-8">
+                        <h2 className="text-2xl font-bold mb-4">Galeri</h2>
+                        <Slider {...sliderSettings}>
+                            {galleryImages.map((image, index) => (
+                                <div key={index}>
+                                    <Image
+                                        src={getImageUrl(image.image_path)}
+                                        alt={`Gallery image ${index + 1}`}
+                                        width={800}
+                                        height={400}
+                                        className="w-full h-auto object-cover rounded-lg"
+                                    />
+                                </div>
+                            ))}
+                        </Slider>
+                    </div>
+                )}
             </section>
         </div>
     );

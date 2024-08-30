@@ -29,7 +29,7 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 //Publc Api
-Route::get('/images/{filename}', [ImageController::class, 'show']);
+Route::get('/images/{folder}/{filename}', [ImageController::class, 'show']);
 Route::get('contents', [ContentController::class, 'index']);
 Route::get('contents/latest-content', [ContentController::class, 'getLatestContents']);
 Route::get('contents/{content}', [ContentController::class, 'show']);
@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('users/{user}', [UserController::class, 'update']);
     Route::post('authors', [AuthorController::class, 'getAuthors']);
     Route::post('contents', [ContentController::class, 'store']);
+    Route::post('contents/{content}/gallery', [ContentGalleryController::class, 'store']);
 });
 
 Route::get('/example', function () {

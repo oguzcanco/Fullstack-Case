@@ -8,11 +8,17 @@ use Illuminate\Support\Facades\Response;
 
 class ImageController extends Controller
 {
-    public function show($filename)
+    public function show($folder, $filename)
     {
-        $path = Storage::disk('public')->path('featured_images/' . $filename);
+        $validFolders = ['featured_images', 'content_gallery'];
         
-        if (!Storage::disk('public')->exists('featured_images/' . $filename)) {
+        if (!in_array($folder, $validFolders)) {
+            abort(404);
+        }
+    
+        $path = Storage::disk('public')->path($folder . '/' . $filename);
+        
+        if (!Storage::disk('public')->exists($folder . '/' . $filename)) {
             abort(404);
         }
     
