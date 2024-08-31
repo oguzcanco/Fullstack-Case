@@ -26,8 +26,10 @@ NEXT_MIDDLEWARE_API_URL=http://laravel:8001/api
 Start Docker Containers
 `docker-compose up -d`
 
+
 Laravel Key generate
 `docker exec laravel php artisan key:generate`
+
 Laravel Migrate && Seed
 ```
 docker exec php artisan migrate
