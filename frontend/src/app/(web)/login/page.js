@@ -23,11 +23,9 @@ export default function Login() {
             const response = await api.post('/auth/login', { email, password });
             if (response.data.user && response.data.access_token) {
                 localStorage.setItem('token', response.data.access_token);
-                localStorage.setItem('userRole', response.data.user.role); // Kullanıcı rolünü kaydet
+                localStorage.setItem('userRole', response.data.user.role_id); // Kullanıcı rolünü kaydet
                 document.cookie = `token=${response.data.access_token}; path=/; max-age=3600; SameSite=Strict; Secure`;
-                document.cookie = `userRole=${response.data.user.role}; path=/; max-age=3600; SameSite=Strict; Secure`;
 
-                // Özel event'i tetikle
                 window.dispatchEvent(new Event('loginCompleted'));
 
                 if (

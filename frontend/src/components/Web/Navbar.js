@@ -24,6 +24,7 @@ export default function Navbar() {
             setUserRole(role);
         };
 
+
         checkLoginStatus();
 
         window.addEventListener('storage', checkLoginStatus);
@@ -70,9 +71,9 @@ export default function Navbar() {
                                 <li><Link href="/categories" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Kategoriler</Link></li>
                             </ul>
                             <div className="flex space-x-2">
-                                {isLoggedIn && userRole === 'admin' && (
-                                    <Link href="/panel" className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
-                                        PANEL
+                                {(isLoggedIn && (userRole == 1 || userRole == 2 || userRole == 3)) && (
+                                    <Link href="/panel" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                                        Admin Paneli
                                     </Link>
                                 )}
                                 <button 
@@ -84,11 +85,6 @@ export default function Navbar() {
                                 {!isLoggedIn && (
                                     <Link href="/register" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                                         Kayıt Ol
-                                    </Link>
-                                )}
-                                {isLoggedIn && userRole === 'admin' && (
-                                    <Link href="/admin/panel" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                                        Admin Paneli
                                     </Link>
                                 )}
                             </div>
@@ -112,6 +108,11 @@ export default function Navbar() {
                             <li><Link href="/categories" className="text-gray-600 hover:text-gray-900" onClick={toggleHamburger}>Kategoriler</Link></li>
                         </ul>
                         <div className="mt-8 space-y-4">
+                            {(isLoggedIn && (userRole == 1 || userRole == 2 || userRole == 3)) && (
+                                <Link href="/panel" className="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center" onClick={toggleHamburger}>
+                                    Admin Paneli
+                                </Link>
+                            )}
                             <button 
                                 onClick={() => { handleAuthAction(); toggleHamburger(); }}
                                 className={`w-full ${isLoggedIn ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white px-4 py-2 rounded`}
@@ -121,11 +122,6 @@ export default function Navbar() {
                             {!isLoggedIn && (
                                 <Link href="/register" className="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center" onClick={toggleHamburger}>
                                     Kayıt Ol
-                                </Link>
-                            )}
-                            {isLoggedIn && userRole === 'admin' && (
-                                <Link href="/admin/panel" className="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center" onClick={toggleHamburger}>
-                                    Admin Paneli
                                 </Link>
                             )}
                         </div>
