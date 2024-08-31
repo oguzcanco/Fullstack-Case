@@ -24,7 +24,8 @@ export default function Login() {
             if (response.data.user && response.data.access_token) {
                 localStorage.setItem('token', response.data.access_token);
                 localStorage.setItem('userRole', response.data.user.role); // Kullanıcı rolünü kaydet
-                document.cookie = `token=${response.data.access_token}; path=/; max-age=86400; SameSite=Strict; Secure`; // 1 gün için, güvenli
+                document.cookie = `token=${response.data.access_token}; path=/; max-age=3600; SameSite=Strict; Secure`;
+                document.cookie = `userRole=${response.data.user.role}; path=/; max-age=3600; SameSite=Strict; Secure`;
 
                 // Özel event'i tetikle
                 window.dispatchEvent(new Event('loginCompleted'));
