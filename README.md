@@ -1,7 +1,7 @@
 # Fullstack Case
 
 This is a Full-Stack Blog App project that uses Next.js for Frontend and Laravel11 for Backend API and MYSQL for database. They are deployed with Docker.
-
+**You can find what was done and what will be done within the scope of the project in the relevant TODO.md files.**
 
 ## INSTALLATION
 
